@@ -1,10 +1,3 @@
-'''
-for the ball detection I based the work on:
-https://www.pyimagesearch.com/2015/09/14/ball-tracking-with-opencv/
-To create the kalman filter code I based on the work of:
-https://www.intechopen.com/books/introduction-and-implementations-of-the-kalman-filter/introduction-to-kalman-filter-and-its-applications
-'''
-
 import cv2
 import numpy as np
 import sys
@@ -56,7 +49,7 @@ def drawTrace(img: np.array, pts: np.array) -> None:
             cv2.line(img, pts[i - 1], pts[i], (0, 0, 255), thickness)
 
 
-def main(video_path: str =''):
+def main():
     parser = argparse.ArgumentParser(description='Ball detection and Kalman Filter')
     parser.add_argument('--video', type=str, help='Video path to do some tracking')
     args = parser.parse_args()
@@ -150,7 +143,7 @@ def main(video_path: str =''):
                 # if len(pts) > 100:
                 #     pts.pop()
 
-                drawTrace(frame, pts)
+                # drawTrace(frame, pts)
                 if flag_obj == 2:
                     x, y = kf.pos.astype(int)
                     cv2.circle(frame, (x, y), 1, (255, 0, 255), 5)
