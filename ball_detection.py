@@ -116,31 +116,32 @@ def main():
                 M = cv2.moments(c)
                 center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
                 if r > 10:
-                    z = np.array([x, y]).reshape(-1, 1)
-                    if x_prev is not None and kf is None:
-                        v = abs(z - x_prev) / delta_t
-                        kf = KF(z, v, acce)
-                    elif kf is not None:
-                        v = abs(z - x_prev) / delta_t
-                        meas = np.append(z, v).reshape(-1, 1)
-                        kf.update(meas, meas_var)
-                        kf.predict(delta_t, acce_var)
-
-                    x_prev = z
                     cv2.circle(frame, (int(x), int(y)), int(r), (0, 255, 0), 4)
                     cv2.circle(frame, center, 1, (0, 0, 255), 5)
                     cv2.putText(frame, 'z', (int(x) + 5, int(y) + 5), font, fontScale, fontColor, lineType)
-                if kf is not None:
-                    kf.predict(delta_t, acce_var)
-                    meas = kf.pos.astype(int)
-                    # kf.update(meas, meas_var)
-                    cv2.circle(frame, (x, y), 1, (255, 0, 255), 5)
-                    cv2.putText(frame, 'KF', (x - 5, y - 5), font, fontScale, fontColor, lineType)
-                # if not args.video:
-                #     pts.insert(0, center)
-                #     if len(pts) > 100:
-                #         pts.pop()
-                #     drawTrace(frame, pts)
+                    # z = np.array([x, y]).reshape(-1, 1)
+                    # if x_prev is not None and kf is None:
+                    #     v = abs(z - x_prev) / delta_t
+                    #     kf = KF(z, v, acce)
+                    # elif kf is not None:
+                    #     v = abs(z - x_prev) / delta_t
+                    #     meas = np.append(z, v).reshape(-1, 1)
+                    #     kf.update(meas, meas_var)
+                    #     kf.predict(delta_t, acce_var)
+
+                    # x_prev = z
+
+                # if kf is not None:
+                #     kf.predict(delta_t, acce_var)
+                #     meas = kf.pos.astype(int)
+                #     # kf.update(meas, meas_var)
+                #     cv2.circle(frame, (x, y), 1, (255, 0, 255), 5)
+                #     cv2.putText(frame, 'KF', (x - 5, y - 5), font, fontScale, fontColor, lineType)
+                if not args.video:
+                    pts.insert(0, center)
+                    if len(pts) > 100:
+                        pts.pop()
+                    drawTrace(frame, pts)
             except:
                 pass
 
