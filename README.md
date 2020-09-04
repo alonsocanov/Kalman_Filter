@@ -34,7 +34,7 @@ python3 path/to/directory/ball_detection.py
 ## References
 
 The code for the ball detection was based from [here](https://www.pyimagesearch.com/2015/09/14/ball-tracking-with-opencv/).  
-The theory for the Kamlan Filter was based from [here](https://www.intechopen.com/books/introduction-and-implementations-of-the-kalman-filter/introduction-to-kalman-filter-and-its-applications).
+The theory for the Kamlan Filter was based from [here](https://www.intechopen.com/books/introduction-and-implementations-of-the-kalman-filter/introduction-to-kalman-filter-and-its-applications) and [here](https://www.youtube.com/watch?v=m5Bw1m8jJuY).
 
 
 

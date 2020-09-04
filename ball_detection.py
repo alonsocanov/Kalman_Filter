@@ -85,8 +85,8 @@ def main():
     hsv_lower = hsv2cvhsv(np.array([45, 40, 20]))
     hsv_upper = hsv2cvhsv(np.array([65, 100, 100]))
 
-    acce = np.array([20, .5]).reshape(-1, 1)
-    acce_var = np.array([20, 20, 20, 20]).reshape(-1, 1)
+    acce = np.array([.5, .5]).reshape(-1, 1)
+    acce_var = np.array([5, 5, 5, 5]).reshape(-1, 1)
     meas_var = np.array([.01, .01, .01, .01]).reshape(-1, 1)
     pts = list()
 
@@ -95,6 +95,7 @@ def main():
     t = 0
     fps = 24
     delta_t = fps / 60
+    kf, x_prev = None, None
     while video.isOpened():
         ret, frame = video.read()
         if check_Q() or frame is None:
@@ -108,7 +109,6 @@ def main():
         cnts = cv2.findContours(mask, cv2.RETR_EXTERNAL,
                                 cv2.CHAIN_APPROX_SIMPLE)
         cnts = imutils.grab_contours(cnts)
-        i = 0
         if len(cnts) > 0:
             try:
                 c = max(cnts, key=cv2.contourArea)
@@ -116,39 +116,31 @@ def main():
                 M = cv2.moments(c)
                 center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
                 if r > 10:
-                    cv2.circle(frame, (int(x), int(y)), int(r), (0, 255, 0), 4)
-                    cv2.circle(frame, center, 1, (0, 0, 255), 5)
-                    cv2.putText(frame, 'z', (int(x) + 5, int(y) + 5), font, fontScale, fontColor, lineType)
                     z = np.array([x, y]).reshape(-1, 1)
-                    if not flag_obj:
-                        x_0 = z
-                        flag_obj = 1
-                    elif flag_obj == 1:
-                        v_0 = abs(z - x_0) / delta_t
-                        x_0 = z
-                        kf = KF(x_0, v_0, acce)
-                        flag_obj = 2
-                    else:
-                        v = abs(z - x_0) / delta_t
-                        x_0 = z
+                    if x_prev is not None and kf is None:
+                        v = abs(z - x_prev) / delta_t
+                        kf = KF(z, v, acce)
+                    elif kf is not None:
+                        v = abs(z - x_prev) / delta_t
                         meas = np.append(z, v).reshape(-1, 1)
                         kf.update(meas, meas_var)
                         kf.predict(delta_t, acce_var)
 
-                        i += 1
-                elif flag_obj == 2:
+                    x_prev = z
+                    cv2.circle(frame, (int(x), int(y)), int(r), (0, 255, 0), 4)
+                    cv2.circle(frame, center, 1, (0, 0, 255), 5)
+                    cv2.putText(frame, 'z', (int(x) + 5, int(y) + 5), font, fontScale, fontColor, lineType)
+                if kf is not None:
                     kf.predict(delta_t, acce_var)
-
-                # pts.insert(0, center)
-                # if len(pts) > 100:
-                #     pts.pop()
-
-                # drawTrace(frame, pts)
-                if flag_obj == 2:
-                    x, y = kf.pos.astype(int)
+                    meas = kf.pos.astype(int)
+                    # kf.update(meas, meas_var)
                     cv2.circle(frame, (x, y), 1, (255, 0, 255), 5)
                     cv2.putText(frame, 'KF', (x - 5, y - 5), font, fontScale, fontColor, lineType)
-
+                # if not args.video:
+                #     pts.insert(0, center)
+                #     if len(pts) > 100:
+                #         pts.pop()
+                #     drawTrace(frame, pts)
             except:
                 pass
 

@@ -2,15 +2,16 @@ import numpy as np
 
 
 class KalmanFilter:
-    def __init__(self, x_0: np.array, v_0: np.array, acceleration: np.array) -> None:
+    def __init__(self, x_0: np.array, v_0: np.array, accel: np.array, accel_var: int) -> None:
         self._x = np.append(x_0, v_0).reshape(-1, 1)
         self._len_state = self._x.shape[0]
         # State vector
-        self._accel = acceleration.reshape(-1, 1)
+        self._accel = accel.reshape(-1, 1)
+        self._accel_var = accel_var
         # Covarianve error matrix
         self._P = np.eye(self._len_state)
 
-    def predict(self, delta_t: float, acceleration_variance: np.array) -> None:
+    def predict(self, delta_t: float) -> None:
         state_div = self._len_state // 2
         # State transition matrix
         F = np.eye(self._len_state)
@@ -25,17 +26,17 @@ class KalmanFilter:
         Q = np.eye(self._len_state)
         Q[:state_div, :] *= .25 * delta_t**4
         Q[state_div:, :] *= delta_t**2
-        Q *= acceleration_variance.reshape(-1, 1)**2
+        Q *= self._accel_var**2
         # Predicted covariance error
         P = F.dot(self._P).dot(F.T) + Q
         self._P = P
         self._x = x
 
-    def update(self, measurements: np.array, measurements_var: np.array) -> None:
+    def update(self, measurements: np.array, measurements_var: int) -> None:
         # Observation vector
         z = measurements.reshape(-1, 1)
         # Mesurement noise covariance matrix
-        R = np.eye(self._len_state) * measurements_var.reshape(-1, 1)**2
+        R = np.eye(self._len_state) * measurements_var**2
         # Measurement transition matrix
         H = np.eye(self._len_state)
         # Measurement residual
@@ -70,4 +71,4 @@ class KalmanFilter:
 
     @ property
     def acceleration(self) -> np.array:
-        return self._accel
+        return self._accel_var
