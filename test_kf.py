@@ -45,20 +45,17 @@ class TestKF(unittest.TestCase):
     def test_kamaln(self):
         print()
         print('Test Kalman')
-        x = np.array([5, 0.1])
-        v = np.array([10.0, .7])
-        accel = np.array([0.0, 0.0])
-        accel_var = .5
-        meas_var = .9
+        x = np.array([10, 0.5])
+        v = np.array([20., .7])
+        accel = np.array([1., 0.2])
+        accel_var = 1.9
+        meas_var = 3.1
 
         kf = KalmanFilter(x_0=x, v_0=v, accel=accel, accel_var=accel_var)
 
         plt.figure()
         delta_t = 0.01
-        num_steps = 1000
-
-        meas_x = x
-        meas_v = v
+        num_steps = 10000
 
         mus = []
         covs = []
@@ -67,25 +64,34 @@ class TestKF(unittest.TestCase):
             covs.append(kf.cov)
             mus.append(kf.mean)
 
-            x += delta_t * meas_v
+            x += delta_t * v + delta_t ** 2 * accel
+            v += delta_t * accel
             meas_x = np.append(x, v)
 
             kf.predict(delta_t=delta_t)
-            if i != 0 and i % 50 == 0:
+            if i != 0 and i % 1000 == 0:
                 kf.update(measurements=meas_x, measurements_var=meas_var)
 
+        covs = np.array(covs)[:, :, 0]
+        mus = np.array(mus)[:, :, 0]
+        uncertanty_pos = mus + 2 * np.sqrt(covs)
+        uncertanty_neg = mus - 2 * np.sqrt(covs)
+
         plt.subplot(2, 1, 1)
-        plt.title('Position x')
-        plt.plot([mu[0] for mu in mus], 'r')
-        plt.plot([mu[0] - 2 * np.sqrt(cov[0, 0]) for mu, cov in zip(mus, covs)], 'r--')
-        plt.plot([mu[0] + 2 * np.sqrt(cov[0, 0]) for mu, cov in zip(mus, covs)], 'r--')
+        plt.title('Position')
+        plt.plot(mus[:, 0], mus[:, 1], 'b')
+        plt.plot(uncertanty_pos[:, 0], uncertanty_pos[:, 1], 'r--')
+        plt.plot(uncertanty_neg[:, 0], uncertanty_neg[:, 1], 'r--')
+        plt.xlabel('y')
+        plt.ylabel('x')
 
         plt.subplot(2, 1, 2)
-        plt.title('Velocity x')
-        plt.plot([mu[2] for mu in mus], 'r')
-        plt.plot([mu[2] - 2 * np.sqrt(cov[2, 2]) for mu, cov in zip(mus, covs)], 'r--')
-        plt.plot([mu[2] + 2 * np.sqrt(cov[2, 2]) for mu, cov in zip(mus, covs)], 'r--')
-        plt.show()
+        plt.title('Velocity')
+        plt.plot(mus[:, 2], mus[:, 3], 'b')
+        plt.plot(uncertanty_pos[:, 2], uncertanty_pos[:, 3], 'r--')
+        plt.plot(uncertanty_neg[:, 2], uncertanty_neg[:, 3], 'r--')
+        plt.xlabel('y')
+        plt.ylabel('x')
 
         plt.show()
 
