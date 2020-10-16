@@ -26,6 +26,7 @@ python3 path/to/directory/test_kf.py
 ## References
   
 The theory for the Kamlan Filter was based from [here](https://www.intechopen.com/books/introduction-and-implementations-of-the-kalman-filter/introduction-to-kalman-filter-and-its-applications) and [here](https://www.youtube.com/watch?v=m5Bw1m8jJuY).
+For a test to verify that the Kalman filter works the data was taken from [here](http://bilgin.esme.org/BitsAndBytes/KalmanFilterforDummies)
 
 
 
