@@ -71,7 +71,7 @@ class TestKF(unittest.TestCase):
             meas = [voltage[i], v[0]]
             kf.update(meas, var=.1)
             v_est.append(kf.pos[0])
-            kf.predict(1, [0,0], 1)
+            kf.predict(1, np.array([0]), 1)
 
         fig = plt.figure(num=1, figsize=(10, 7))
         ax = fig.add_subplot(1, 1, 1)
@@ -81,21 +81,8 @@ class TestKF(unittest.TestCase):
         ax.legend(['$v$', '$\hat{v}$'])
         ax.set_xlabel('x')
         ax.set_ylabel('volatge')
-
         # plt.show()
 
-        
-
-
-            
-
-
-            
-
-    
-    
-    
-    
     
     def test_kalman(self):
         x = np.array([0, 0]).reshape(-1, 1)
@@ -144,98 +131,9 @@ class TestKF(unittest.TestCase):
         ax.set_xlabel('time')
         ax.set_ylabel('velocity')
 
-
         plt.show()
     
-            
-
-
-    # def test_kamaln(self):
-    #     print()
-    #     print('Test Kalman')
-    #     x = np.array([.1, 0.05])
-    #     v = np.array([.02, .07])
-    #     accel = np.array([0.1, 0.1])
-    #     var = .1
-    #     meas_var = .1
-
-    #     kf = KalmanFilter(x_0=x, v_0=v, accel=accel)
-
-    #     plt.figure()
-    #     delta_t = 0.01
-    #     num_steps = 10000
-
-    #     mus = []
-    #     covs = []
-    #     time = []
-    #     meas = []
-    #     t = 0
-    #     for i in range(num_steps):
-    #         covs.append(kf.cov)
-    #         mus.append(kf.mean)
-    #         # print(mus)
-
-    #         x += delta_t * v + delta_t ** 2 * accel
-    #         v += 0.5 * delta_t * accel
-    #         meas_x = np.append(x, v)
-
-    #         if i != 0 and i % 1000 == 0:
-    #             kf.update(measurements=meas_x, measurements_var=meas_var)
-    #             meas.append(meas_x)
-    #         else:
-    #             kf.predict(delta_t=delta_t, var=var)
-
-    #         time.append(t)
-    #         t += delta_t
-
-    #     covs = np.array(covs)[:, :, 0]
-    #     mus = np.array(mus)[:, :, 0]
-    #     meas = np.array(meas)
-
-    #     uncertanty_pos = mus + 2 * np.sqrt(covs)
-    #     uncertanty_neg = mus - 2 * np.sqrt(covs)
-
-    #     fig = plt.figure(num=1, figsize=(10, 10))
-
-    #     ax = fig.add_subplot(2, 2, 1)
-    #     ax.set_title('2D Position')
-
-    #     ax.plot(mus[:, 0], mus[:, 1], 'b', linewidth=3.0)
-    #     ax.plot(uncertanty_pos[:, 0], uncertanty_pos[:, 1], 'r--')
-    #     ax.plot(uncertanty_neg[:, 0], uncertanty_neg[:, 1], 'r--')
-    #     ax.plot(meas[:, 0], meas[:, 1], 'g*')
-    #     ax.set_xlabel('x')
-    #     ax.set_ylabel('y')
-
-    #     ax = fig.add_subplot(2, 2, 2, projection='3d')
-    #     ax.set_title('3D Position')
-    #     ax.plot3D(mus[:, 0], mus[:, 1], time, 'blue', linewidth=3.0)
-    #     ax.plot3D(uncertanty_neg[:, 0], uncertanty_neg[:, 1], time, 'r--')
-    #     ax.plot3D(uncertanty_pos[:, 0], uncertanty_pos[:, 1], time, 'r--')
-    #     ax.set_xlabel('x')
-    #     ax.set_ylabel('y')
-    #     ax.set_zlabel('time')
-
-    #     ax = fig.add_subplot(2, 2, 3)
-    #     ax.set_title('2D Velocity')
-    #     ax.plot(mus[:, 2], mus[:, 3], 'b', linewidth=3.0)
-    #     ax.plot(uncertanty_pos[:, 2], uncertanty_pos[:, 3], 'r--')
-    #     ax.plot(uncertanty_neg[:, 2], uncertanty_neg[:, 3], 'r--')
-    #     ax.plot(meas[:, 2], meas[:, 3], 'g*')
-    #     ax.set_xlabel('x')
-    #     ax.set_ylabel('y')
-
-    #     ax = fig.add_subplot(2, 2, 4, projection='3d')
-    #     ax.set_title('3D Velocity')
-    #     ax.plot3D(mus[:, 2], mus[:, 3], time, 'blue', linewidth=3.0)
-    #     ax.plot3D(uncertanty_pos[:, 2], uncertanty_pos[:, 3], time, 'r--')
-    #     ax.plot3D(uncertanty_neg[:, 2], uncertanty_neg[:, 3], time, 'r--')
-    #     ax.set_xlabel('x')
-    #     ax.set_ylabel('y')
-    #     ax.set_zlabel('time')
-
-    #     plt.show()
-
+    
 
 if __name__ == '__main__':
     unittest.main()
