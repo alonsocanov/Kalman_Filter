@@ -52,13 +52,12 @@ def hsv2cvhsv(hsv: np.array) -> np.array:
 
 
 # draw object tail with image and points coordenates
-def drawTrace(img: np.array, pts: np.array) -> None:
+def drawTrace(img: np.array, pts: np.array, color: tuple=(0, 0, 255), line_width:int=2) -> None:
     for i in range(1, len(pts)):
         if pts[i - 1] is None or pts[i] is None:
             pass
         else:
-            thickness = 2
-            cv2.line(img, pts[i - 1], pts[i], (0, 0, 255), 2)
+            cv2.line(img, pts[i - 1], pts[i], color, line_width)
 
 
 def main():
@@ -97,16 +96,17 @@ def main():
     hsv_upper = hsv2cvhsv(np.array([50, 100, 100]))
 
     pts = list()
+    kf_pos = list()
     if args.save:
         out = cv2.VideoWriter('output/out.avi', cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 24, (w, h))
 
     x_prev = []
     v_prev = []
-    acceleration = np.array([0, 0])
-    var = .5
-    meas_var = .01
+    var = 20
+    meas_var = 10
     delta_t = 100 / 24
     kf = None
+   
 
     print('Press Q to quit')
     while video.isOpened():
@@ -135,15 +135,15 @@ def main():
                     flag_first_detect = True
                 elif flag_first_detect and not flag_second_detect:
                     x_i = np.array([x, y])
-                    v_i = (x_i - x_prev) / delta_t + acceleration
-                    kf = Kf(x_i, v_i, acceleration)
+                    v_i = (x_i - x_prev) / delta_t
+                    kf = Kf(x_i, v_i, 10)
                     flag_second_detect = True
                 elif flag_first_detect and flag_second_detect:
                     x_i = np.array([x, y])
-                    v_i = (x_i - x_prev) / delta_t + acceleration
-                    print(v_i)
+                    v_i = (x_i - x_prev) / delta_t
                     z_i = np.concatenate((x_i, v_i), axis=0)
                     kf.update(z_i, meas_var)
+                    kf.predict(delta_t, [0, 0], var)
                 x_prev = np.array([x, y])
 
                 cv2.circle(frame, (int(x), int(y)), int(r), (0, 255, 0), 4)
@@ -153,12 +153,15 @@ def main():
                 drawTrace(frame, pts)
 
         elif flag_first_detect and flag_second_detect:
-            kf.predict(delta_t, var)
+            kf.predict(delta_t, [0, 0], var)
 
         if kf:
             x_kf, y_kf = kf.pos
             cv2.circle(frame, (int(x_kf), int(y_kf)), 35, (255, 0, 0), 4)
             cv2.putText(frame, 'kf', (int(x_kf) - 10, int(y_kf) + 10), font, fontScale, fontColor, lineType)
+            kf_pos.insert(0, (int(x_kf), int(y_kf)))
+            drawTrace(frame, kf_pos, (255, 255, 0), 1)
+
 
         # save video feed
         if args.save:
