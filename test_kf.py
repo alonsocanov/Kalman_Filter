@@ -97,15 +97,17 @@ class TestKF(unittest.TestCase):
         k_pos = kf.pos.reshape(-1, 1)
         k_vel = kf.vel.reshape(-1, 1)
         for i in range(num_steps):
-            x = x + v * dt
+            random = (np.random.rand(2, 1) - .5) * 2
+            x = x + random + (v + random) * dt
             t += dt
 
-            meas = np.append(x, v)
+
+            meas = np.append(x, v + random)
             kf.update(meas, 5)
             kf.predict(dt, np.array([0, 0]), 10)
 
-            x_plot = np.append(x_plot, x, axis=1)
-            v_plot = np.append(v_plot, v, axis=1)
+            x_plot = np.append(x_plot, x + random, axis=1)
+            v_plot = np.append(v_plot, v + random, axis=1)
             t_plot.append(t)
             k_pos = np.append(k_pos, kf.pos.reshape(-1, 1), axis=1)
             k_vel = np.append(k_vel, kf.vel.reshape(-1, 1), axis=1)
